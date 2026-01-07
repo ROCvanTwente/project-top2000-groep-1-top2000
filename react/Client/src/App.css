@@ -1,42 +1,382 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.app {
+    min-height: 100vh;
+    width: 100vw;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Styles */
+.header {
+    background-color: #000000;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ff0000;
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff0000;
+    letter-spacing: 2px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nav {
+    display: flex;
+    gap: 30px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.nav-link {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 8px 16px;
+    transition: all 0.3s;
+    border-radius: 4px;
 }
 
-.card {
-  padding: 2em;
+    .nav-link:hover {
+        background-color: #333333;
+        color: #ff0000;
+    }
+
+    .nav-link.active {
+        color: #ff0000;
+        border-bottom: 2px solid #ff0000;
+    }
+
+/* Main Content */
+.main-content {
+    padding: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.read-the-docs {
-  color: #888;
+/* Featured Section */
+.featured-section {
+    margin-bottom: 60px;
+}
+
+.section-title {
+    color: #ff0000;
+    font-size: 32px;
+    margin-bottom: 30px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.featured-albums {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.album-card {
+    position: relative;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+    .album-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(255, 0, 0, 0.3);
+    }
+
+.position-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ff0000;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    z-index: 1;
+}
+
+.album-cover {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.album-cover-placeholder, .song-thumbnail-placeholder {
+    width: 100%;
+    height: 250px;
+    background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #666;
+}
+
+.placeholder-albums {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.album-placeholder {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.album-info {
+    padding: 15px;
+    background-color: #2a2a2a;
+}
+
+.album-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.album-artist {
+    color: #999;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Table Section */
+.table-section {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-header-bar {
+    background-color: #ff0000;
+    padding: 15px 20px;
+}
+
+    .table-header-bar h3 {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+.table-container {
+    overflow-x: auto;
+}
+
+.songs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .songs-table thead {
+        background-color: #1a1a1a;
+    }
+
+    .songs-table th {
+        padding: 15px;
+        text-align: left;
+        color: #999;
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-bottom: 1px solid #333;
+    }
+
+    .songs-table tbody tr {
+        border-bottom: 1px solid #333;
+        transition: background-color 0.2s;
+    }
+
+        .songs-table tbody tr:hover {
+            background-color: #333;
+        }
+
+    .songs-table td {
+        padding: 15px;
+        color: #ffffff;
+    }
+
+.position-cell {
+    font-weight: bold;
+    color: #ff0000;
+    font-size: 18px;
+    width: 60px;
+}
+
+.change-cell {
+    width: 60px;
+    text-align: center;
+}
+
+.change-value {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.change-icon {
+    font-size: 18px;
+}
+
+.position-up {
+    color: #00ff00;
+}
+
+.position-down {
+    color: #ff6666;
+}
+
+.no-change {
+    color: #666;
+}
+
+.image-cell {
+    width: 80px;
+}
+
+.song-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.song-thumbnail-placeholder {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #666;
+}
+
+.title-cell {
+    font-weight: 600;
+    max-width: 300px;
+}
+
+.artist-cell {
+    color: #999;
+    max-width: 250px;
+}
+
+.year-cell {
+    color: #666;
+    width: 80px;
+}
+
+.action-cell {
+    width: 150px;
+}
+
+.listen-button {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+    .listen-button:hover {
+        background-color: #cc0000;
+        transform: scale(1.05);
+    }
+
+/* Loading and Error States */
+.loading, .error {
+    text-align: center;
+    padding: 100px 20px;
+    font-size: 18px;
+    color: #999;
+}
+
+.error {
+    color: #ff6666;
+}
+
+.retry-button {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: all 0.3s;
+}
+
+    .retry-button:hover {
+        background-color: #cc0000;
+    }
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .nav {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    .featured-albums {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .songs-table {
+        font-size: 14px;
+    }
+
+        .songs-table th,
+        .songs-table td {
+            padding: 10px 5px;
+        }
+
+    .title-cell,
+    .artist-cell {
+        max-width: 150px;
+    }
 }
