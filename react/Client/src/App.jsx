@@ -1,347 +1,310 @@
-﻿import { useState } from 'react'
+﻿import { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import SongDetail from './components/SongDetail'
 import './App.css'
 
-// Placeholder data - easily replaceable with API data later
-const PLACEHOLDER_SONGS = [
-    {
-        id: 1,
-        title: "Bohemian Rhapsody",
-        artist: "Queen",
-        year: 1975,
-        currentPosition: 1,
-        previousPosition: 1,
-        positionChange: 0,
-        albumCoverUrl: "https://upload.wikimedia.org/wikipedia/en/9/9f/Bohemian_Rhapsody.png"
-    },
-    {
-        id: 2,
-        title: "Hotel California",
-        artist: "Eagles",
-        year: 1977,
-        currentPosition: 2,
-        previousPosition: 3,
-        positionChange: 1,
-        albumCoverUrl: "https://upload.wikimedia.org/wikipedia/en/4/49/Hotelcalifornia.jpg"
-    },
-    {
-        id: 3,
-        title: "Imagine",
-        artist: "John Lennon",
-        year: 1971,
-        currentPosition: 3,
-        previousPosition: 2,
-        positionChange: -1,
-        albumCoverUrl: "https://upload.wikimedia.org/wikipedia/en/1/1d/John_Lennon_-_Imagine_John_Lennon.jpg"
-    },
-    {
-        id: 4,
-        title: "Stairway to Heaven",
-        artist: "Led Zeppelin",
-        year: 1971,
-        currentPosition: 4,
-        previousPosition: 5,
-        positionChange: 1,
-        albumCoverUrl: "https://upload.wikimedia.org/wikipedia/en/2/26/Led_Zeppelin_-_Led_Zeppelin_IV.jpg"
-    },
-    {
-        id: 5,
-        title: "Comfortably Numb",
-        artist: "Pink Floyd",
-        year: 1979,
-        currentPosition: 5,
-        previousPosition: 4,
-        positionChange: -1,
-        albumCoverUrl: "https://upload.wikimedia.org/wikipedia/en/d/d6/Pink_Floyd_-_all_n1.jpg"
-    },
-    {
-        id: 6,
-        title: "Wish You Were Here",
-        artist: "Pink Floyd",
-        year: 1975,
-        currentPosition: 6,
-        previousPosition: 6,
-        positionChange: 0,
-        albumCoverUrl: null
-    },
-    {
-        id: 7,
-        title: "Child In Time",
-        artist: "Deep Purple",
-        year: 1970,
-        currentPosition: 7,
-        previousPosition: 8,
-        positionChange: 1,
-        albumCoverUrl: null
-    },
-    {
-        id: 8,
-        title: "The Sound of Silence",
-        artist: "Simon & Garfunkel",
-        year: 1964,
-        currentPosition: 8,
-        previousPosition: 7,
-        positionChange: -1,
-        albumCoverUrl: null
-    },
-    {
-        id: 9,
-        title: "One",
-        artist: "U2",
-        year: 1991,
-        currentPosition: 9,
-        previousPosition: 10,
-        positionChange: 1,
-        albumCoverUrl: null
-    },
-    {
-        id: 10,
-        title: "Kashmir",
-        artist: "Led Zeppelin",
-        year: 1975,
-        currentPosition: 10,
-        previousPosition: 9,
-        positionChange: -1,
-        albumCoverUrl: null
-    },
-    {
-        id: 11,
-        title: "Yesterday",
-        artist: "The Beatles",
-        year: 1965,
-        currentPosition: 11,
-        previousPosition: 11,
-        positionChange: 0,
-        albumCoverUrl: null
-    },
-    {
-        id: 12,
-        title: "Sweet Child O' Mine",
-        artist: "Guns N' Roses",
-        year: 1987,
-        currentPosition: 12,
-        previousPosition: 14,
-        positionChange: 2,
-        albumCoverUrl: null
-    },
-    {
-        id: 13,
-        title: "Nothing Else Matters",
-        artist: "Metallica",
-        year: 1991,
-        currentPosition: 13,
-        previousPosition: 12,
-        positionChange: -1,
-        albumCoverUrl: null
-    },
-    {
-        id: 14,
-        title: "November Rain",
-        artist: "Guns N' Roses",
-        year: 1991,
-        currentPosition: 14,
-        previousPosition: 15,
-        positionChange: 1,
-        albumCoverUrl: null
-    },
-    {
-        id: 15,
-        title: "The Show Must Go On",
-        artist: "Queen",
-        year: 1991,
-        currentPosition: 15,
-        previousPosition: 13,
-        positionChange: -2,
-        albumCoverUrl: null
-    },
-    {
-        id: 16,
-        title: "Avond",
-        artist: "Boudewijn de Groot",
-        year: 1997,
-        currentPosition: 16,
-        previousPosition: 17,
-        positionChange: 1,
-        albumCoverUrl: null
-    },
-    {
-        id: 17,
-        title: "Life On Mars?",
-        artist: "David Bowie",
-        year: 1971,
-        currentPosition: 17,
-        previousPosition: 16,
-        positionChange: -1,
-        albumCoverUrl: null
-    },
-    {
-        id: 18,
-        title: "Purple Rain",
-        artist: "Prince",
-        year: 1984,
-        currentPosition: 18,
-        previousPosition: 19,
-        positionChange: 1,
-        albumCoverUrl: null
-    },
-    {
-        id: 19,
-        title: "Shine On You Crazy Diamond",
-        artist: "Pink Floyd",
-        year: 1975,
-        currentPosition: 19,
-        previousPosition: 18,
-        positionChange: -1,
-        albumCoverUrl: null
-    },
-    {
-        id: 20,
-        title: "Black",
-        artist: "Pearl Jam",
-        year: 1991,
-        currentPosition: 20,
-        previousPosition: 20,
-        positionChange: 0,
-        albumCoverUrl: null
+const API_BASE_URL = 'https://localhost:7003/api';
+
+function HomePage() {
+  const [songs, setSongs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalSongs, setTotalSongs] = useState(0);
+  const pageSize = 50;
+
+  useEffect(() => {
+    fetchSongs(currentPage);
+  }, [currentPage]);
+
+  const fetchSongs = async (page) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(`${API_BASE_URL}/songs?page=${page}&pageSize=${pageSize}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      setSongs(data.songs);
+      setCurrentPage(data.currentPage);
+      setTotalPages(data.totalPages);
+      setTotalSongs(data.totalSongs);
+    } catch (err) {
+      console.error('Error fetching songs:', err);
+      setError('Failed to load songs. Make sure the API is running on https://localhost:7003');
+    } finally {
+      setLoading(false);
     }
-];
+  };
+
+  const getSongSlug = (title) => {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  };
+
+  const getPositionChangeIcon = (change) => {
+    if (!change || change === 0) return '–';
+    if (change > 0) return '↑';
+    return '↓';
+  };
+
+  const getPositionChangeClass = (change) => {
+    if (!change || change === 0) return 'no-change';
+    if (change > 0) return 'position-up';
+    return 'position-down';
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const handlePageClick = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 7;
+    
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        for (let i = 1; i <= 5; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
+  const featuredSongs = songs.slice(0, 5);
+
+  if (loading && songs.length === 0) {
+    return (
+      <div className="app">
+        <header className="header">
+          <Link to="/" className="logo" style={{ textDecoration: 'none' }}>🎵 TOP 2000</Link>
+          <nav className="nav">
+            <Link to="/" className="nav-link active">Home</Link>
+            <a href="#list" className="nav-link">Lijst</a>
+            <a href="#stats" className="nav-link">Statistics</a>
+            <a href="#stemmen" className="nav-link">Stemmen</a>
+            <a href="#info" className="nav-link">Info</a>
+            <a href="#account" className="nav-link">👤</a>
+          </nav>
+        </header>
+        <main className="main-content">
+          <div className="loading">Loading Top 2000...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="app">
+        <header className="header">
+          <Link to="/" className="logo" style={{ textDecoration: 'none' }}>🎵 TOP 2000</Link>
+          <nav className="nav">
+            <Link to="/" className="nav-link active">Home</Link>
+            <a href="#list" className="nav-link">Lijst</a>
+            <a href="#stats" className="nav-link">Statistics</a>
+            <a href="#stemmen" className="nav-link">Stemmen</a>
+            <a href="#info" className="nav-link">Info</a>
+            <a href="#account" className="nav-link">👤</a>
+          </nav>
+        </header>
+        <main className="main-content">
+          <div className="error">
+            <p>{error}</p>
+            <button onClick={() => fetchSongs(currentPage)} className="retry-button">
+              Retry
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app">
+      <header className="header">
+        <Link to="/" className="logo" style={{ textDecoration: 'none' }}>🎵 TOP 2000</Link>
+        <nav className="nav">
+          <Link to="/" className="nav-link active">Home</Link>
+          <a href="#list" className="nav-link">Lijst</a>
+          <a href="#stats" className="nav-link">Statistics</a>
+          <a href="#stemmen" className="nav-link">Stemmen</a>
+          <a href="#info" className="nav-link">Info</a>
+          <a href="#account" className="nav-link">👤</a>
+        </nav>
+      </header>
+
+      <main className="main-content">
+        {currentPage === 1 && featuredSongs.length > 0 && (
+          <section className="featured-section">
+            <h2 className="section-title">TOP 2000 2024</h2>
+            <div className="featured-albums">
+              {featuredSongs.map((song) => (
+                <Link 
+                  key={song.songId} 
+                  to={`/song/${getSongSlug(song.titel)}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <div className="album-card">
+                    <div className="position-badge">{song.currentPosition}</div>
+                    {song.imgUrl ? (
+                      <img src={song.imgUrl} alt={song.titel} className="album-cover" />
+                    ) : (
+                      <div className="album-cover-placeholder">
+                        <span>🎵</span>
+                      </div>
+                    )}
+                    <div className="album-info">
+                      <p className="album-title">{song.titel}</p>
+                      <p className="album-artist">{song.artistName}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="table-section">
+          <div className="table-header-bar">
+            <h3>TOP 2000 2024 - Page {currentPage} of {totalPages} ({totalSongs} songs)</h3>
+          </div>
+          <div className="table-container">
+            <table className="songs-table">
+              <thead>
+                <tr>
+                  <th>POS</th>
+                  <th>±</th>
+                  <th>IMAGE</th>
+                  <th>TITLE</th>
+                  <th>ARTIST</th>
+                  <th>YEAR</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                {songs.map((song) => (
+                  <tr key={song.songId}>
+                    <td className="position-cell">{song.currentPosition}</td>
+                    <td className={`change-cell ${getPositionChangeClass(song.positionChange)}`}>
+                      <span className="change-value">
+                        {song.positionChange ? Math.abs(song.positionChange) : '–'}
+                      </span>
+                      <span className="change-icon">
+                        {getPositionChangeIcon(song.positionChange)}
+                      </span>
+                    </td>
+                    <td className="image-cell">
+                      {song.imgUrl ? (
+                        <img src={song.imgUrl} alt={song.titel} className="song-thumbnail" />
+                      ) : (
+                        <div className="song-thumbnail-placeholder">🎵</div>
+                      )}
+                    </td>
+                    <td className="title-cell">
+                      <Link 
+                        to={`/song/${getSongSlug(song.titel)}`}
+                        className="song-title-link"
+                      >
+                        {song.titel}
+                      </Link>
+                    </td>
+                    <td className="artist-cell">{song.artistName}</td>
+                    <td className="year-cell">{song.releaseYear || '–'}</td>
+                    <td className="action-cell">
+                      <button className="listen-button">Listen Now</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="pagination">
+            <button 
+              className="pagination-button" 
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+            >
+              ← Previous
+            </button>
+            
+            <div className="pagination-numbers">
+              {getPageNumbers().map((page, index) => (
+                page === '...' ? (
+                  <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
+                ) : (
+                  <button
+                    key={page}
+                    className={`pagination-number ${currentPage === page ? 'active' : ''}`}
+                    onClick={() => handlePageClick(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              ))}
+            </div>
+
+            <button 
+              className="pagination-button" 
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next →
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
 
 function App() {
-    const [songs] = useState(PLACEHOLDER_SONGS);
-    const [featuredSongs] = useState(PLACEHOLDER_SONGS.slice(0, 5));
-
-    const getPositionChangeIcon = (change) => {
-        if (!change || change === 0) return '–';
-        if (change > 0) return '↑';
-        return '↓';
-    };
-
-    const getPositionChangeClass = (change) => {
-        if (!change || change === 0) return 'no-change';
-        if (change > 0) return 'position-up';
-        return 'position-down';
-    };
-
-    return (
-        <div className="app">
-            <header className="header">
-                <div className="logo">TOP 2000</div>
-                <nav className="nav">
-                    <a href="#home" className="nav-link active">Home</a>
-                    <a href="#list" className="nav-link">Lijst</a>
-                    <a href="#stats" className="nav-link">Statistics</a>
-                    <a href="#stemmen" className="nav-link">Stemmen</a>
-                    <a href="#info" className="nav-link">Info</a>
-                    <a href="#account" className="nav-link">Profiel</a>
-                </nav>
-            </header>
-
-            <main className="main-content">
-                <section className="featured-section">
-                    <h2 className="section-title">TOP 2000 2025</h2>
-                    <div className="featured-albums">
-                        {featuredSongs.map((song) => (
-                            <div key={song.id} className="album-card">
-                                <div className="position-badge">{song.currentPosition}</div>
-                                {song.albumCoverUrl ? (
-                                    <img src={song.albumCoverUrl} alt={song.title} className="album-cover" />
-                                ) : (
-                                    <div className="album-cover-placeholder">
-                                        <span>🎵</span>
-                                    </div>
-                                )}
-                                <div className="album-info">
-                                    <p className="album-title">{song.title}</p>
-                                    <p className="album-artist">{song.artist}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="table-section">
-                    <div className="table-header-bar">
-                        <h3>TOP 2000 2025</h3>
-                    </div>
-                    <div className="table-container">
-                        <table className="songs-table">
-                            <thead>
-                                <tr>
-                                    <th>POS</th>
-                                    <th>±</th>
-                                    <th>IMAGE</th>
-                                    <th>TITLE</th>
-                                    <th>ARTIST</th>
-                                    <th>YEAR</th>
-                                    <th>ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {songs.map((song) => (
-                                    <tr key={song.id}>
-                                        <td className="position-cell">{song.currentPosition}</td>
-                                        <td className={`change-cell ${getPositionChangeClass(song.positionChange)}`}>
-                                            <span className="change-value">
-                                                {song.positionChange ? Math.abs(song.positionChange) : '–'}
-                                            </span>
-                                            <span className="change-icon">
-                                                {getPositionChangeIcon(song.positionChange)}
-                                            </span>
-                                        </td>
-                                        <td className="image-cell">
-                                            {song.albumCoverUrl ? (
-                                                <img src={song.albumCoverUrl} alt={song.title} className="song-thumbnail" />
-                                            ) : (
-                                                <div className="song-thumbnail-placeholder">???</div>
-                                            )}
-                                        </td>
-                                        <td className="title-cell">{song.title}</td>
-                                        <td className="artist-cell">{song.artist}</td>
-                                        <td className="year-cell">{song.year}</td>
-                                        <td className="action-cell">
-                                            <button className="listen-button">Listen Now</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </main>
-        </div>
-    )
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/song/:slug" element={<SongDetail />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App
-
-/* 
-  TO CONNECT TO BACKEND API:
-  
-  1. Replace the PLACEHOLDER_SONGS array with API call:
-     
-     useEffect(() => {
-       fetchSongs();
-     }, []);
-     
-     const fetchSongs = async () => {
-       try {
-         const response = await fetch('YOUR_API_URL/api/songs');
-         const data = await response.json();
-         setSongs(data);
-         setFeaturedSongs(data.slice(0, 5));
-       } catch (error) {
-         console.error('Error fetching songs:', error);
-       }
-     };
-  
-  2. The data structure should match:
-     {
-       id: number,
-       title: string,
-       artist: string,
-       year: number,
-       currentPosition: number,
-       previousPosition: number | null,
-       positionChange: number | null,
-       albumCoverUrl: string | null
-     }
-*/

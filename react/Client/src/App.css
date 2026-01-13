@@ -278,6 +278,18 @@
     max-width: 300px;
 }
 
+.song-title-link {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.3s;
+    cursor: pointer;
+}
+
+.song-title-link:hover {
+    color: #ff0000;
+    text-decoration: underline;
+}
+
 .artist-cell {
     color: #999;
     max-width: 250px;
@@ -310,6 +322,76 @@
         background-color: #cc0000;
         transform: scale(1.05);
     }
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 30px 20px;
+    background-color: #2a2a2a;
+    border-top: 1px solid #333;
+}
+
+.pagination-button {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #ff0000;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.pagination-button:hover:not(:disabled) {
+    background-color: #ff0000;
+    transform: scale(1.05);
+}
+
+.pagination-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: #666;
+}
+
+.pagination-numbers {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.pagination-number {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #444;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    min-width: 40px;
+    font-size: 14px;
+}
+
+.pagination-number:hover {
+    background-color: #333;
+    border-color: #ff0000;
+}
+
+.pagination-number.active {
+    background-color: #ff0000;
+    border-color: #ff0000;
+    color: #ffffff;
+}
+
+.pagination-ellipsis {
+    color: #666;
+    padding: 0 5px;
+    font-weight: bold;
+}
 
 /* Loading and Error States */
 .loading, .error {
@@ -378,5 +460,21 @@
     .title-cell,
     .artist-cell {
         max-width: 150px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .pagination-button {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+
+    .pagination-number {
+        padding: 6px 10px;
+        min-width: 35px;
+        font-size: 12px;
     }
 }
