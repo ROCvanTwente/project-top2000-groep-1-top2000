@@ -1,24 +1,13 @@
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+namespace TemplateJwtProject.Models;
 
-namespace TemplateJwtProject.Models
+public class Artist
 {
-    [Table("Artist")]
-    public class Artist
-    {
-        [Key]
-        public int ArtistId { get; set; }
-
-        [Required]
-        public string Name { get; set; } = null!;
-
-        public string? Wiki { get; set; }
-
-        public string? Biography { get; set; }
-
-        public string? Photo { get; set; }
-
-        public ICollection<Song> Songs { get; set; } = new List<Song>();
-    }
+    public int ArtistId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Wiki { get; set; }
+    public string? Biography { get; set; }
+    public string? Photo { get; set; }
+    
+    // Navigation property
+    public ICollection<Song> Songs { get; set; } = new List<Song>();
 }
