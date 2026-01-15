@@ -224,4 +224,50 @@ public class SongsController : ControllerBase
 
         return Ok(history);
     }
+
+    /// <summary>
+    /// Get songs that dropped in position for a given year
+    /// Statistic 1: Shows all songs that dropped with biggest drops first
+    /// </summary>
+    [HttpGet("statistics/dropped-songs")]
+    public async Task<ActionResult<List<DroppedSongDto>>> GetDroppedSongs([FromQuery] int year = 2024)
+    {
+        // Validate year (need previous year data, so start from 2000)
+        if (year < 2000 || year > MostRecentYear)
+        {
+            return BadRequest(new { message = $"Year must be between 2000 and {MostRecentYear}" });
+        }
+
+        try
+        {
+            // Get songs that dropped in the specified year
+            var droppedSongs = await (from song in _context.Songs
+                                      join artist in _context.Artist on song.ArtistId equals artist.ArtistId
+                                      join currentEntry in _context.Top2000Entries 
+                                          on song.SongId equals currentEntry.SongId
+                                      join previousEntry in _context.Top2000Entries
+                                          on song.SongId equals previousEntry.SongId
+                                      where currentEntry.Year == year
+                                          && previousEntry.Year == year - 1
+                                          && currentEntry.Position > previousEntry.Position // Dropped (higher position number = lower rank)
+                                      orderby (currentEntry.Position - previousEntry.Position) descending // Biggest drops first
+                                      select new DroppedSongDto
+                                      {
+                                          SongId = song.SongId,
+                                          Titel = song.Titel,
+                                          ArtistName = artist.Name,
+                                          ReleaseYear = song.ReleaseYear,
+                                          CurrentPosition = currentEntry.Position,
+                                          PreviousPosition = previousEntry.Position,
+                                          PositionsDropped = currentEntry.Position - previousEntry.Position,
+                                          ImgUrl = song.ImgUrl
+                                      }).ToListAsync();
+
+            return Ok(droppedSongs);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = $"Error retrieving statistics: {ex.Message}" });
+        }
+    }
 }

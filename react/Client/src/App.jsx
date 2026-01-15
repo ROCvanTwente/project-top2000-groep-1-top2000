@@ -1,9 +1,9 @@
 ﻿import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import SongDetail from './components/SongDetail'
+import Statistics from './components/Statistics'
+import API_BASE_URL from './config/api'
 import './App.css'
-
-const API_BASE_URL = 'https://localhost:7003/api';
 
 function HomePage() {
   const [songs, setSongs] = useState([]);
@@ -117,7 +117,7 @@ function HomePage() {
           <nav className="nav">
             <Link to="/" className="nav-link active">Home</Link>
             <a href="#list" className="nav-link">Lijst</a>
-            <a href="#stats" className="nav-link">Statistics</a>
+            <Link to="/statistics" className="nav-link">Statistics</Link>
             <a href="#stemmen" className="nav-link">Stemmen</a>
             <a href="#info" className="nav-link">Info</a>
             <a href="#account" className="nav-link">👤</a>
@@ -138,7 +138,7 @@ function HomePage() {
           <nav className="nav">
             <Link to="/" className="nav-link active">Home</Link>
             <a href="#list" className="nav-link">Lijst</a>
-            <a href="#stats" className="nav-link">Statistics</a>
+            <Link to="/statistics" className="nav-link">Statistics</Link>
             <a href="#stemmen" className="nav-link">Stemmen</a>
             <a href="#info" className="nav-link">Info</a>
             <a href="#account" className="nav-link">👤</a>
@@ -163,7 +163,7 @@ function HomePage() {
         <nav className="nav">
           <Link to="/" className="nav-link active">Home</Link>
           <a href="#list" className="nav-link">Lijst</a>
-          <a href="#stats" className="nav-link">Statistics</a>
+          <Link to="/statistics" className="nav-link">Statistics</Link>
           <a href="#stemmen" className="nav-link">Stemmen</a>
           <a href="#info" className="nav-link">Info</a>
           <a href="#account" className="nav-link">👤</a>
@@ -302,6 +302,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/song/:slug" element={<SongDetail />} />
+        <Route path="/statistics" element={<Statistics />} />
       </Routes>
     </Router>
   );

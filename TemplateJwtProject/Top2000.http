@@ -50,4 +50,31 @@ Content-Type: application/json
 GET {{baseUrl}}/songs/by-title/this-song-does-not-exist
 Content-Type: application/json
 
+### === STATISTICS ENDPOINTS ===
+
+### 13. Get dropped songs for 2024
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2024
+Content-Type: application/json
+
+### 14. Get dropped songs for 2023
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2023
+Content-Type: application/json
+
+### 15. Get dropped songs for 2020
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2020
+Content-Type: application/json
+
+### 16. Test invalid year (too old)
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=1990
+Content-Type: application/json
+
+### 17. Test invalid year (future)
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2030
+Content-Type: application/json
+
+### 18. Test default year (should use 2024)
+GET {{baseUrl}}/songs/statistics/dropped-songs
+Content-Type: application/json
+Content-Type: application/json
+
 ###
