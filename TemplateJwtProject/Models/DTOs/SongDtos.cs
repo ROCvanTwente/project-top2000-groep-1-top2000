@@ -41,3 +41,15 @@ public class PaginatedSongsDto
     public int TotalSongs { get; set; }
     public int PageSize { get; set; }
 }
+
+public class DroppedSongDto
+{
+    public int SongId { get; set; }
+    public string Titel { get; set; } = string.Empty;
+    public string ArtistName { get; set; } = string.Empty;
+    public int? ReleaseYear { get; set; }
+    public int CurrentPosition { get; set; }
+    public int PreviousPosition { get; set; }
+    public int PositionsDropped { get; set; }
+    public string? ImgUrl { get; set; }
+}

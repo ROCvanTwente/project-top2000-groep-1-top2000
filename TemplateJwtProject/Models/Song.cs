@@ -9,7 +9,7 @@ public class Song
     public string? ImgUrl { get; set; }
     public string? Lyrics { get; set; }
     public string? Youtube { get; set; }
-    
+
     // Navigation properties
     public Artist Artist { get; set; } = null!;
     public ICollection<Top2000Entry> Entries { get; set; } = new List<Top2000Entry>();

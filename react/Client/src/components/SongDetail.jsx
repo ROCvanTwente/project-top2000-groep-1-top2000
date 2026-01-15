@@ -1,8 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../config/api';
 import './SongDetail.css';
-
-const API_BASE_URL = 'https://localhost:7003/api';
 
 function SongDetail() {
   const { slug } = useParams();
