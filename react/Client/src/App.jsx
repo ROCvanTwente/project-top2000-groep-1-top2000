@@ -37,7 +37,7 @@ function HomePage() {
       setTotalSongs(data.totalSongs);
     } catch (err) {
       console.error('Error fetching songs:', err);
-      setError('Failed to load songs. Make sure the API is running on https://localhost:7003');
+      setError(`Failed to load songs from ${API_BASE_URL}. Error: ${err.message}`);
     } finally {
       setLoading(false);
     }
