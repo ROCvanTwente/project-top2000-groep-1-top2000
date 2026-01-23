@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TemplateJwtProject.Data;
 using TemplateJwtProject.Models.DTOs;
+using System.Linq;
 
 namespace TemplateJwtProject.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Produces("application/json")]
+[Route("api/songs")]
 public class SongsController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -22,7 +25,7 @@ public class SongsController : ControllerBase
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PaginatedSongsDto>> GetSongs(
-        [FromQuery] int page = 1, 
+        [FromQuery] int page = 1,
         [FromQuery] int pageSize = 50)
     {
         if (page < 1) page = 1;
@@ -31,7 +34,7 @@ public class SongsController : ControllerBase
         // Get songs with their current year positions
         var query = from song in _context.Songs
                     join artist in _context.Artist on song.ArtistId equals artist.ArtistId
-                    join currentEntry in _context.Top2000Entries 
+                    join currentEntry in _context.Top2000Entries
                         on song.SongId equals currentEntry.SongId
                     where currentEntry.Year == MostRecentYear
                     orderby currentEntry.Position
@@ -63,8 +66,8 @@ public class SongsController : ControllerBase
                 ReleaseYear = x.ReleaseYear,
                 CurrentPosition = x.CurrentPosition,
                 PreviousPosition = x.PreviousEntry,
-                PositionChange = x.PreviousEntry.HasValue 
-                    ? x.PreviousEntry.Value - x.CurrentPosition 
+                PositionChange = x.PreviousEntry.HasValue
+                    ? x.PreviousEntry.Value - x.CurrentPosition
                     : null,
                 ImgUrl = x.ImgUrl
             })
@@ -88,7 +91,7 @@ public class SongsController : ControllerBase
     {
         // Convert URL slug back to title format
         var decodedTitle = Uri.UnescapeDataString(title).Replace("-", " ");
-        
+
         var song = await _context.Songs
             .Include(s => s.Artist)
             .Include(s => s.Entries)
@@ -128,8 +131,8 @@ public class SongsController : ControllerBase
             ReleaseYear = song.ReleaseYear,
             CurrentPosition = currentEntry.Position,
             PreviousPosition = previousEntry?.Position,
-            PositionChange = previousEntry != null 
-                ? previousEntry.Position - currentEntry.Position 
+            PositionChange = previousEntry != null
+                ? previousEntry.Position - currentEntry.Position
                 : null,
             ImgUrl = song.ImgUrl,
             Lyrics = song.Lyrics,
@@ -185,8 +188,8 @@ public class SongsController : ControllerBase
             ReleaseYear = song.ReleaseYear,
             CurrentPosition = currentEntry.Position,
             PreviousPosition = previousEntry?.Position,
-            PositionChange = previousEntry != null 
-                ? previousEntry.Position - currentEntry.Position 
+            PositionChange = previousEntry != null
+                ? previousEntry.Position - currentEntry.Position
                 : null,
             ImgUrl = song.ImgUrl,
             Lyrics = song.Lyrics,
@@ -243,7 +246,7 @@ public class SongsController : ControllerBase
             // Get songs that dropped in the specified year
             var droppedSongs = await (from song in _context.Songs
                                       join artist in _context.Artist on song.ArtistId equals artist.ArtistId
-                                      join currentEntry in _context.Top2000Entries 
+                                      join currentEntry in _context.Top2000Entries
                                           on song.SongId equals currentEntry.SongId
                                       join previousEntry in _context.Top2000Entries
                                           on song.SongId equals previousEntry.SongId
@@ -268,6 +271,67 @@ public class SongsController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = $"Error retrieving statistics: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// Statistic: Songs that appeared in every Top2000 edition.
+    /// Returns title, artist and release year.
+    /// NOTE: older implementation grouped by SongId; if the same song was imported as multiple Song rows
+    /// across years it would be missed. This version groups by title+artist (case-insensitive) so the
+    /// endpoint returns songs that appear in every edition even when SongId differs between imports.
+    /// </summary>
+    [HttpGet("/api/songs/statistics/all-time")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<AllTimeSongDto>>> GetAllTimeSongs()
+    {
+        try
+        {
+            // how many distinct editions (years) exist in the data
+            var totalEditions = await _context.Top2000Entries
+                .Select(e => e.Year)
+                .Distinct()
+                .CountAsync();
+
+            if (totalEditions == 0)
+            {
+                return Ok(new List<AllTimeSongDto>());
+            }
+
+            // Join entries -> songs -> artists and group by normalized (lowercase) title + artist name.
+            // This handles cases where the same song was stored as multiple SongId rows across years.
+            var groups = await (from e in _context.Top2000Entries
+                                join s in _context.Songs on e.SongId equals s.SongId
+                                join a in _context.Artist on s.ArtistId equals a.ArtistId
+                                select new { s.Titel, ArtistName = a.Name, e.Year, s.ReleaseYear })
+                               .GroupBy(x => new { TitleNorm = x.Titel.ToLower(), ArtistNorm = x.ArtistName.ToLower() })
+                               .Select(g => new
+                               {
+                                   // preserve a representative display title/artist and release year
+                                   Titel = g.Select(x => x.Titel).FirstOrDefault(),
+                                   ArtistName = g.Select(x => x.ArtistName).FirstOrDefault(),
+                                   ReleaseYear = g.Select(x => x.ReleaseYear).FirstOrDefault(),
+                                   DistinctYearCount = g.Select(x => x.Year).Distinct().Count()
+                               })
+                               .Where(x => x.DistinctYearCount == totalEditions)
+                               .OrderBy(x => x.Titel)
+                               .ThenBy(x => x.ArtistName)
+                               .ToListAsync();
+
+            var result = groups
+                .Select(x => new AllTimeSongDto
+                {
+                    Titel = x.Titel ?? string.Empty,
+                    ArtistName = x.ArtistName ?? string.Empty,
+                    ReleaseYear = x.ReleaseYear
+                })
+                .ToList();
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = $"Error retrieving all-time songs: {ex.Message}" });
         }
     }
 }

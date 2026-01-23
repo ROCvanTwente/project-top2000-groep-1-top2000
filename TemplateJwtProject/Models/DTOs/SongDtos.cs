@@ -53,3 +53,9 @@ public class DroppedSongDto
     public int PositionsDropped { get; set; }
     public string? ImgUrl { get; set; }
 }
+public class AllTimeSongDto
+{
+    public string Titel { get; set; } = string.Empty;
+    public string ArtistName { get; set; } = string.Empty;
+    public int? ReleaseYear { get; set; }
+}
