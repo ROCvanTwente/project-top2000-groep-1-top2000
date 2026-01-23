@@ -50,13 +50,32 @@ namespace TemplateJwtProject.Controllers
         [HttpGet("opnieuw-binnenkomers/{jaar}")]
         public async Task<ActionResult<IEnumerable<NewEntryDto>>> GetOpnieuwBinnenkomers(int jaar)
         {
-            // We hergebruiken NewEntryDto omdat de kolommen hetzelfde zijn
             var result = await _context.Database
                 .SqlQueryRaw<NewEntryDto>("EXEC GetOpnieuwBinnenkomers @Jaar",
                     new Microsoft.Data.SqlClient.SqlParameter("@Jaar", jaar))
                 .ToListAsync();
 
             return Ok(result);
+        }
+
+        // endpoint for volledige lijst
+        [HttpGet("full-list/{jaar}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetFullList(int jaar)
+        {
+            var list = await _context.Top2000Entries
+                .Where(t => t.Year == jaar)
+                .OrderBy(t => t.Position) 
+                .Select(t => new {
+                    t.Position,
+                    t.SongId,
+                    SongTitle = t.Song.Titel,
+                    ArtistId = t.Song.Artist.ArtistId,
+                    ArtistName = t.Song.Artist.Name,
+                    t.Song.ReleaseYear
+                })
+                .ToListAsync();
+
+            return Ok(list);
         }
     }
 }
