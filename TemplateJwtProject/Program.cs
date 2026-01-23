@@ -1,21 +1,20 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using System.Text;
 using TemplateJwtProject.Data;
 using TemplateJwtProject.Models;
 using TemplateJwtProject.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-// Database configuratie
+// --- 1. Database configuratie ---
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity configuratie
+// --- 2. Identity configuratie ---
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     // Password settings
@@ -24,16 +23,21 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
-    
+
     // User settings
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-// JWT Authentication configuratie
+// --- 3. JWT Authentication configuratie ---
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured");
+// Check of SecretKey bestaat om crash te voorkomen
+var secretKey = jwtSettings["SecretKey"];
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("JWT SecretKey is not configured in appsettings.json");
+}
 
 builder.Services.AddAuthentication(options =>
 {
@@ -55,9 +59,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS configuratie
+// --- 4. CORS configuratie ---
+// Let op: Voeg hier je Frontend URL toe (bijv. http://localhost:5173 voor Vite)
 var corsSettings = builder.Configuration.GetSection("CorsSettings");
-var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:1234" };
+var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>()
+                     ?? new[] { "http://localhost:1234", "http://localhost:5173", "http://localhost:3000" };
 
 builder.Services.AddCors(options =>
 {
@@ -66,36 +72,48 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowCredentials(); // Belangrijk als je cookies of auth headers stuurt
     });
 });
 
-// Services
+// --- 5. Services Registratie ---
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// --- 6. OpenAPI / Swagger (Modern .NET manier) ---
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Initialiseer rollen
+// --- 7. Data Seeding (Rollen aanmaken) ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await RoleInitializer.InitializeAsync(services);
+    try
+    {
+        await RoleInitializer.InitializeAsync(services);
+    }
+    catch (Exception ex)
+    {
+        // Log error als seeding faalt, maar laat app niet crashen
+        Console.WriteLine($"Error during role initialization: {ex.Message}");
+    }
 }
 
-// Configure the HTTP request pipeline.
+// --- 8. Request Pipeline ---
 if (app.Environment.IsDevelopment())
 {
+    // Dit genereert de JSON op /openapi/v1.json
     app.MapOpenApi();
+    // Dit toont de UI op /scalar/v1
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
 
-// CORS middleware (voor Authentication en Authorization!)
+// Belangrijk: CORS moet VOOR Auth en Authorization
 app.UseCors("DefaultCorsPolicy");
 
 app.UseAuthentication();

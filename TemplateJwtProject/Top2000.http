@@ -1,0 +1,80 @@
+### Top 2000 Songs API Tests
+
+@baseUrl = https://localhost:7003/api
+
+### 1. Get first page of songs (default page size 50)
+GET {{baseUrl}}/songs
+Content-Type: application/json
+
+### 2. Get second page of songs
+GET {{baseUrl}}/songs?page=2&pageSize=50
+Content-Type: application/json
+
+### 3. Get songs with custom page size (25 songs)
+GET {{baseUrl}}/songs?page=1&pageSize=25
+Content-Type: application/json
+
+### 4. Get song by title (Bohemian Rhapsody)
+GET {{baseUrl}}/songs/by-title/bohemian-rhapsody
+Content-Type: application/json
+
+### 5. Get song by title (Hotel California)
+GET {{baseUrl}}/songs/by-title/hotel-california
+Content-Type: application/json
+
+### 6. Get song by title with spaces (exact title)
+GET {{baseUrl}}/songs/by-title/Bohemian%20Rhapsody
+Content-Type: application/json
+
+### 7. Get song by ID
+GET {{baseUrl}}/songs/1
+Content-Type: application/json
+
+### 8. Get song history by ID
+GET {{baseUrl}}/songs/1/history
+Content-Type: application/json
+
+### 9. Test pagination - last page (assuming 2000 songs, 50 per page = 40 pages)
+GET {{baseUrl}}/songs?page=40&pageSize=50
+Content-Type: application/json
+
+### 10. Test invalid page (should return empty or error)
+GET {{baseUrl}}/songs?page=999&pageSize=50
+Content-Type: application/json
+
+### 11. Test page size validation (max 100)
+GET {{baseUrl}}/songs?page=1&pageSize=150
+Content-Type: application/json
+
+### 12. Get song that doesn't exist
+GET {{baseUrl}}/songs/by-title/this-song-does-not-exist
+Content-Type: application/json
+
+### === STATISTICS ENDPOINTS ===
+
+### 13. Get dropped songs for 2024
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2024
+Content-Type: application/json
+
+### 14. Get dropped songs for 2023
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2023
+Content-Type: application/json
+
+### 15. Get dropped songs for 2020
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2020
+Content-Type: application/json
+
+### 16. Test invalid year (too old)
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=1990
+Content-Type: application/json
+
+### 17. Test invalid year (future)
+GET {{baseUrl}}/songs/statistics/dropped-songs?year=2030
+Content-Type: application/json
+
+### 18. Test default year (should use 2024)
+GET {{baseUrl}}/songs/statistics/dropped-songs
+Content-Type: application/json
+Content-Type: application/json
+
+###
