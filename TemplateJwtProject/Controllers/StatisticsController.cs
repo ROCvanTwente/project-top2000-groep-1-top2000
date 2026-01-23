@@ -16,6 +16,8 @@ namespace TemplateJwtProject.Controllers
             _context = context;
         }
 
+
+        // endpoint for nieuwe binnenkomers
         [HttpGet("nieuwe-binnenkomers/{jaar}")]
         public async Task<ActionResult<IEnumerable<NewEntryDto>>> GetNieuweBinnenkomers(int jaar)
         {
@@ -27,6 +29,18 @@ namespace TemplateJwtProject.Controllers
 
             var result = await _context.Database
                 .SqlQuery<NewEntryDto>($"EXEC GetNieuweBinnenkomers @Jaar = {jaar}")
+                .ToListAsync();
+
+            return Ok(result);
+        }
+
+        // endpoint for verdwenen nummers
+        [HttpGet("verdwenen-nummers/{jaar}")]
+        public async Task<ActionResult<IEnumerable<LostEntryDto>>> GetVerdwenenNummers(int jaar)
+        {
+            var result = await _context.Database
+                .SqlQueryRaw<LostEntryDto>("EXEC GetVerdwenenNummers @Jaar",
+                    new Microsoft.Data.SqlClient.SqlParameter("@Jaar", jaar))
                 .ToListAsync();
 
             return Ok(result);
