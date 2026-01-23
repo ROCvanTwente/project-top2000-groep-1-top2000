@@ -45,5 +45,18 @@ namespace TemplateJwtProject.Controllers
 
             return Ok(result);
         }
+
+        // endpoint for opnieuw binnenkomers
+        [HttpGet("opnieuw-binnenkomers/{jaar}")]
+        public async Task<ActionResult<IEnumerable<NewEntryDto>>> GetOpnieuwBinnenkomers(int jaar)
+        {
+            // We hergebruiken NewEntryDto omdat de kolommen hetzelfde zijn
+            var result = await _context.Database
+                .SqlQueryRaw<NewEntryDto>("EXEC GetOpnieuwBinnenkomers @Jaar",
+                    new Microsoft.Data.SqlClient.SqlParameter("@Jaar", jaar))
+                .ToListAsync();
+
+            return Ok(result);
+        }
     }
 }
