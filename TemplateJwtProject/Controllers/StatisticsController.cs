@@ -76,5 +76,17 @@ namespace TemplateJwtProject.Controllers
 
             return Ok(list);
         }
+
+        // endpoint for zelfde positie
+        [HttpGet("zelfde-positie/{jaar}")]
+        public async Task<ActionResult<IEnumerable<SamePositionSongDto>>> GetZelfdePositie(int jaar)
+        {
+            var result = await _context.Database
+                .SqlQueryRaw<SamePositionSongDto>("EXEC GetZelfdePositie @Jaar",
+                    new Microsoft.Data.SqlClient.SqlParameter("@Jaar", jaar))
+                .ToListAsync();
+
+            return Ok(result);
+        }
     }
 }
