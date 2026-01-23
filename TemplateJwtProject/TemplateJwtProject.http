@@ -1,6 +1,17 @@
 @TemplateJwtProject_HostAddress = http://localhost:5237
+@Https_HostAddress = https://localhost:7003
 
 GET {{TemplateJwtProject_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+### Test Statistics - Nieuwe Binnenkomers
+GET {{Https_HostAddress}}/api/statistics/nieuwe-binnenkomers/2024
+
+###
+
+### Test Statistics - Zelfde Positie
+GET {{Https_HostAddress}}/api/statistics/zelfde-positie/2024
 
 ###
